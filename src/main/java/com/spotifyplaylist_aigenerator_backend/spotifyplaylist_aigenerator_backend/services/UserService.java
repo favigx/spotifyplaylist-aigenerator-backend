@@ -12,10 +12,13 @@ import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backe
 public class UserService {
 
     private final MongoOperations mongoOperations;
+    private final EncryptionService encryptionService;
     private PasswordEncoder passwordEncoder;
 
-    public UserService(MongoOperations mongoOperations, PasswordEncoder passwordEncoder) {
+    public UserService(MongoOperations mongoOperations, EncryptionService encryptionService,
+            PasswordEncoder passwordEncoder) {
         this.mongoOperations = mongoOperations;
+        this.encryptionService = encryptionService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -35,5 +38,40 @@ public class UserService {
     public User getUserByUsername(String username) {
         Query query = new Query(Criteria.where("username").is(username));
         return mongoOperations.findOne(query, User.class);
+    }
+
+    public void saveSpotifyAccessToken(String username, String accessToken) {
+        try {
+            String encryptedToken = encryptionService.encrypt(accessToken);
+
+            User user = getUserByUsername(username);
+
+            if (user != null) {
+                user.setSpotifyAccessToken(encryptedToken);
+                mongoOperations.save(user);
+            } else {
+                throw new RuntimeException("Användaren hittades inte");
+            }
+
+        } catch (Exception e) {
+            System.err.println("Kunde inte spara spotify-accesstoken: " + e.getMessage());
+        }
+    }
+
+    public String getSpotifyAccessToken(String username) {
+        try {
+            User user = getUserByUsername(username);
+
+            if (user != null) {
+                String encryptedToken = user.getSpotifyAccessToken();
+                return encryptionService.decrypt(encryptedToken);
+            } else {
+                throw new RuntimeException("Användaren hittades inte");
+            }
+
+        } catch (Exception e) {
+            System.err.println("Kunde inte hämta spotify-accesstoken: " + e.getMessage());
+            return null;
+        }
     }
 }

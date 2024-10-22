@@ -9,11 +9,13 @@ public class User {
     private String userId;
     private String username;
     private String password;
+    private String spotifyAccessToken;
 
-    public User(String userId, String username, String password) {
+    public User(String userId, String username, String password, String spotifyAccessToken) {
         this.userId = userId;
         this.username = username;
         this.password = password;
+        this.spotifyAccessToken = spotifyAccessToken;
     }
 
     public String getUserId() {
@@ -38,5 +40,13 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getSpotifyAccessToken() {
+        return spotifyAccessToken;
+    }
+
+    public void setSpotifyAccessToken(String spotifyAccessToken) {
+        this.spotifyAccessToken = spotifyAccessToken;
     }
 }
