@@ -12,11 +12,9 @@ public class AiChatRequest {
     public AiChatRequest(String model, String prompt, int n) {
         this.model = model;
         this.messages = new ArrayList<>();
-        this.messages
-                .add(new AiMessage("system",
-                        "Du genererar en spellista baserat på liknande låtar och artister som prompten innehåller"));
-        this.messages
-                .add(new AiMessage("user", prompt));
+        this.messages.add(new AiMessage("system",
+                "Generera en lista med 15 låtar som liknar låtarna och artisterna som nämns i användarens prompt. Var kreativ. Format svaret ska vara i exakt, ingen siffra innan: Låtnamn - Artist"));
+        this.messages.add(new AiMessage("user", prompt));
         this.n = n;
     }
 

@@ -4,12 +4,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.Track;
+
+import java.util.Collections;
 
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class SpotifyAuthService {
@@ -43,7 +50,7 @@ public class SpotifyAuthService {
     }
 
     public String getSpotifyAuthorizationUrl(String username) {
-        String scopes = "playlist-modify-public playlist-modify-private";
+        String scopes = "playlist-modify-public playlist-modify-private user-library-read user-read-private user-read-playback-state user-top-read";
 
         return "https://accounts.spotify.com/authorize?response_type=code"
                 + "&client_id=" + clientId
@@ -73,9 +80,132 @@ public class SpotifyAuthService {
             String accessToken = extractAccessToken(response.getBody());
 
             userService.saveSpotifyAccessToken(username, accessToken);
-
-            return null;
+            return accessToken;
         }
         return null;
+    }
+
+    public List<Track> getTopTenPlayedTracks(String accessToken) {
+        String url = "https://api.spotify.com/v1/me/top/tracks?limit=10";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return extractTopTracks(response.getBody());
+            } else {
+                System.out.println("Misslyckade med att hitta top 10. Status kod: " + response.getStatusCode());
+                System.out.println("Response body: " + response.getBody());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+
+    private List<Track> extractTopTracks(String responseBody) {
+        List<Track> topTracks = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode root = mapper.readTree(responseBody);
+            JsonNode items = root.get("items");
+            if (items != null) {
+                for (JsonNode item : items) {
+                    String trackName = item.get("name").asText();
+                    String artistName = item.get("artists").get(0).get("name").asText();
+                    String albumName = item.get("album").get("name").asText();
+                    String trackUri = item.get("uri").asText();
+
+                    topTracks.add(new Track(trackName, artistName, albumName, trackUri));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return topTracks;
+    }
+
+    public String searchTrack(String trackName, String artistName, String accessToken) {
+        String url = "https://api.spotify.com/v1/search?q=" + trackName + "%20artist:" + artistName
+                + "&type=track&limit=1";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return extractTrackUri(response.getBody());
+        } else {
+            System.out.println("Misslyckades med att söka låt. Statuskod: " + response.getStatusCode());
+            return null;
+        }
+    }
+
+    private String extractTrackUri(String responseBody) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode root = mapper.readTree(responseBody);
+            JsonNode items = root.path("tracks").path("items");
+            if (items.size() > 0) {
+                String trackUri = items.get(0).path("uri").asText();
+                return trackUri;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String createPlaylist(String accessToken) {
+        String url = "https://api.spotify.com/v1/me/playlists";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        String jsonBody = "{ \"name\": \"AI Genererad Spellista\", \"description\": \"Spellista skapad baserat på AI-förslag.\", \"public\": true }";
+
+        HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+
+        ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+
+        if (response.getStatusCode() == HttpStatus.CREATED) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                JsonNode node = mapper.readTree(response.getBody());
+                return node.get("id").asText();
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public boolean addTracksToPlaylist(String accessToken, String playlistId, List<String> trackUris) {
+        String url = "https://api.spotify.com/v1/playlists/" + playlistId + "/tracks";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        StringBuilder jsonBody = new StringBuilder("{ \"uris\": [");
+        for (int i = 0; i < trackUris.size(); i++) {
+            jsonBody.append("\"").append(trackUris.get(i)).append("\"");
+            if (i < trackUris.size() - 1) {
+                jsonBody.append(", ");
+            }
+        }
+        jsonBody.append("]}");
+
+        HttpEntity<String> entity = new HttpEntity<>(jsonBody.toString(), headers);
+
+        ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+
+        return response.getStatusCode() == HttpStatus.CREATED;
     }
 }
