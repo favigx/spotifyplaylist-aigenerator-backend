@@ -10,12 +10,25 @@ public class User {
     private String username;
     private String password;
     private String spotifyAccessToken;
+    private boolean isPremium;
+    private int playlistsCreated;
 
-    public User(String userId, String username, String password, String spotifyAccessToken) {
+    public User(String userId, String username, String password, String spotifyAccessToken, boolean isPremium,
+            int playlistsCreated) {
         this.userId = userId;
         this.username = username;
         this.password = password;
         this.spotifyAccessToken = spotifyAccessToken;
+        this.isPremium = isPremium;
+        this.playlistsCreated = playlistsCreated;
+    }
+
+    public boolean isPremium() {
+        return isPremium;
+    }
+
+    public void setPremium(boolean isPremium) {
+        this.isPremium = isPremium;
     }
 
     public String getUserId() {
@@ -48,5 +61,13 @@ public class User {
 
     public void setSpotifyAccessToken(String spotifyAccessToken) {
         this.spotifyAccessToken = spotifyAccessToken;
+    }
+
+    public int getPlaylistsCreated() {
+        return playlistsCreated;
+    }
+
+    public void setPlaylistsCreated(int playlistsCreated) {
+        this.playlistsCreated = playlistsCreated;
     }
 }

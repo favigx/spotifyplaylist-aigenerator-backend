@@ -1,7 +1,6 @@
 package com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.controllers;
 
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.Track;
-import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.services.AiChatService;
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.services.SpotifyAuthService;
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.services.UserService;
 
