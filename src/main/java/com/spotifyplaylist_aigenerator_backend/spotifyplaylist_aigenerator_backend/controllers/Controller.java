@@ -10,5 +10,4 @@ public class Controller {
     public String getIndex() {
         return "{'message': 'Hello, AI-generator!'}";
     }
-
 }
