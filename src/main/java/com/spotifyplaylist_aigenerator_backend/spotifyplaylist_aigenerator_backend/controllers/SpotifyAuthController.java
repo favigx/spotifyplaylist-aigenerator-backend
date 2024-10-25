@@ -37,7 +37,7 @@ public class SpotifyAuthController {
         spotifyAuthService.exchangeCodeForAccessToken(code, username);
 
         RedirectView redirectView = new RedirectView();
-        String redirectUrl = "http://localhost:8080";
+        String redirectUrl = "http://localhost:5173/?page=generateplaylist";
         redirectView.setUrl(redirectUrl);
         return redirectView;
     }

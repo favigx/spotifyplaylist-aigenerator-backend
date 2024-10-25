@@ -1,6 +1,7 @@
 package com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,7 @@ import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backe
 import java.util.ArrayList;
 import java.util.List;
 
+@CrossOrigin(origins = "*")
 @RestController
 public class AiChatController {
 
@@ -28,12 +30,12 @@ public class AiChatController {
     private UserService userService;
 
     @PostMapping("/aichat/{username}")
-    public List<String> postAiChat(@RequestBody String prompt, @PathVariable String username) {
+    public String postAiChat(@RequestBody String prompt, @PathVariable String username) {
 
         User user = userService.getUserByUsername(username);
 
         if (!user.isPremium() && user.getPlaylistsCreated() >= 2) {
-            return List.of("Du har nått din gräns på 2 spellistor. Uppgradera till premium för att skapa fler.");
+            return "Du har nått din gräns på 2 spellistor. Uppgradera till premium för att skapa fler.";
         }
 
         AiChatResponse aiChatResponse = aiChatService.sendAiChatResponse(prompt);
@@ -63,9 +65,13 @@ public class AiChatController {
             if (added) {
                 user.setPlaylistsCreated(user.getPlaylistsCreated() + 1);
                 userService.updateUser(user);
-                return List.of("Spellista skapad: https://open.spotify.com/playlist/" + playlistId);
+                return "Spellista skapad: https://open.spotify.com/playlist/" + playlistId;
             }
         }
-        return songLinks;
+        if (!songLinks.isEmpty()) {
+            return "Spellista skapad men inga låtar kunde läggas till.";
+        }
+
+        return "Inga låtar kunde hittas.";
     }
 }
