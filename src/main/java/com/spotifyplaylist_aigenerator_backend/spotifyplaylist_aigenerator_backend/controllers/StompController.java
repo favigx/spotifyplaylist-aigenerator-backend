@@ -18,9 +18,8 @@
 // @Autowired
 // UserService userService;
 
-// private final SimpMessagingTemplate messagingTemplate; // Deklarera fältet
+// private final SimpMessagingTemplate messagingTemplate;
 
-// // Konstruktorn för injektion
 // @Autowired
 // public StompController(SimpMessagingTemplate messagingTemplate) {
 // this.messagingTemplate = messagingTemplate;
@@ -37,7 +36,6 @@
 // spellistor.";
 // }
 
-// // Om access token finns
 // return "Access token är giltig. Du kan skapa spellistor.";
 // }
 // }
