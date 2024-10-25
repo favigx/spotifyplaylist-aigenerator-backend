@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.User;
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.services.UserService;
@@ -55,7 +56,7 @@ public class StripeController {
     }
 
     @GetMapping("/success")
-    public ResponseEntity<?> handleSubscriptionSuccess(@RequestParam("session_id") String sessionId) {
+    public RedirectView handleSubscriptionSuccess(@RequestParam("session_id") String sessionId) {
         Stripe.apiKey = stripeApiKey;
 
         try {
@@ -70,15 +71,18 @@ public class StripeController {
                     existingUser.setPremium(true);
                     userService.updateUser(existingUser);
 
-                    return ResponseEntity.ok("Premium-prenumeration aktiverad för användare: " + username);
+                    RedirectView redirectView = new RedirectView();
+                    String redirectUrl = "http://localhost:5173/?page=generateplaylist";
+                    redirectView.setUrl(redirectUrl);
+                    return redirectView;
                 } else {
-                    return ResponseEntity.status(404).body("Användare hittades inte.");
+                    return new RedirectView("http://localhost:5173/?page=error&message=Användare+hittades+inte");
                 }
             } else {
-                return ResponseEntity.status(400).body("Betalningen misslyckades.");
+                return new RedirectView("http://localhost:5173/?page=error&message=Betalning+misslyckades");
             }
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Ett fel uppstod: " + e.getMessage());
+            return new RedirectView("http://localhost:5173/?page=error&message=" + e.getMessage());
         }
     }
 }
