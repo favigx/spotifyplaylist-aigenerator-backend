@@ -1,5 +1,8 @@
 package com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,9 +16,10 @@ public class User {
     private String spotifyAccessToken;
     private boolean isPremium;
     private int playlistsCreated;
+    private List<Playlist> playlists;
 
     public User(String userId, String email, String username, String password, String spotifyAccessToken,
-            boolean isPremium, int playlistsCreated) {
+            boolean isPremium, int playlistsCreated, List<Playlist> playlists) {
         this.userId = userId;
         this.email = email;
         this.username = username;
@@ -23,6 +27,7 @@ public class User {
         this.spotifyAccessToken = spotifyAccessToken;
         this.isPremium = isPremium;
         this.playlistsCreated = playlistsCreated;
+        this.playlists = playlists != null ? playlists : new ArrayList<>();
     }
 
     public String getUserId() {
@@ -79,5 +84,13 @@ public class User {
 
     public void setPlaylistsCreated(int playlistsCreated) {
         this.playlistsCreated = playlistsCreated;
+    }
+
+    public List<Playlist> getPlaylists() {
+        return playlists;
+    }
+
+    public void setPlaylists(List<Playlist> playlists) {
+        this.playlists = playlists;
     }
 }

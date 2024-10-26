@@ -36,9 +36,10 @@ public class StripeController {
 
         try {
             SessionCreateParams params = SessionCreateParams.builder()
-                    .setSuccessUrl("http://localhost:8080/success?session_id={CHECKOUT_SESSION_ID}")
+                    .setSuccessUrl(
+                            "https://shark-app-j7qxa.ondigitalocean.app/success?session_id={CHECKOUT_SESSION_ID}")
 
-                    .setCancelUrl("http://localhost:8080/cancel")
+                    .setCancelUrl("https://shark-app-j7qxa.ondigitalocean.app/cancel")
                     .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                     .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
                     .addLineItem(SessionCreateParams.LineItem.builder()
@@ -72,17 +73,20 @@ public class StripeController {
                     userService.updateUser(existingUser);
 
                     RedirectView redirectView = new RedirectView();
-                    String redirectUrl = "http://localhost:5173/?page=generateplaylist";
+                    String redirectUrl = "https://lobster-app-ebdey.ondigitalocean.app?page=generateplaylist";
                     redirectView.setUrl(redirectUrl);
                     return redirectView;
                 } else {
-                    return new RedirectView("http://localhost:5173/?page=error&message=Användare+hittades+inte");
+                    return new RedirectView(
+                            "https://lobster-app-ebdey.ondigitalocean.app?page=error&message=Användare+hittades+inte");
                 }
             } else {
-                return new RedirectView("http://localhost:5173/?page=error&message=Betalning+misslyckades");
+                return new RedirectView(
+                        "https://lobster-app-ebdey.ondigitalocean.app?page=error&message=Betalning+misslyckades");
             }
         } catch (Exception e) {
-            return new RedirectView("http://localhost:5173/?page=error&message=" + e.getMessage());
+            return new RedirectView(
+                    "https://lobster-app-ebdey.ondigitalocean.app?page=error&message=" + e.getMessage());
         }
     }
 }

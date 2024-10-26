@@ -7,7 +7,9 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.Playlist;
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.Track;
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.User;
 
 import java.util.Collections;
 
@@ -17,6 +19,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SpotifyAuthService {
@@ -161,14 +164,15 @@ public class SpotifyAuthService {
         return null;
     }
 
-    public String createPlaylist(String accessToken) {
+    public String createPlaylist(String accessToken, String playlistName) {
         String url = "https://api.spotify.com/v1/me/playlists";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        String jsonBody = "{ \"name\": \"AI Genererad Spellista\", \"description\": \"Spellista skapad baserat på AI-förslag.\", \"public\": true }";
+        String jsonBody = "{ \"name\": \"" + playlistName
+                + "\", \"description\": \"Spellista skapad baserat på AI-förslag\", \"public\": true }";
 
         HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
 
@@ -207,5 +211,62 @@ public class SpotifyAuthService {
         ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
 
         return response.getStatusCode() == HttpStatus.CREATED;
+    }
+
+    public List<Playlist> getUserPlaylists(String username) {
+        String accessToken = userService.getSpotifyAccessToken(username);
+        String url = "https://api.spotify.com/v1/me/playlists";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                List<Playlist> allPlaylists = extractPlaylists(response.getBody());
+                User user = userService.getUserByUsername(username);
+
+                List<String> appCreatedPlaylistIds = user.getPlaylists().stream()
+                        .map(Playlist::getId)
+                        .collect(Collectors.toList());
+
+                List<Playlist> createdByAppPlaylists = allPlaylists.stream()
+                        .filter(playlist -> appCreatedPlaylistIds.contains(playlist.getId()))
+                        .toList();
+
+                return createdByAppPlaylists;
+            } else {
+                System.out.println("Misslyckades med att hämta spellistor. Statuskod: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+
+    private List<Playlist> extractPlaylists(String responseBody) {
+        List<Playlist> playlists = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode root = mapper.readTree(responseBody);
+            JsonNode items = root.get("items");
+            if (items != null) {
+                for (JsonNode item : items) {
+                    String playlistId = item.get("id").asText();
+                    String playlistName = item.get("name").asText();
+                    String spotifyLink = item.get("external_urls").get("spotify").asText();
+
+                    String artworkUrl = "";
+                    if (item.has("images") && item.get("images").size() > 0) {
+                        artworkUrl = item.get("images").get(0).get("url").asText();
+                    }
+                    playlists.add(new Playlist(playlistId, playlistName, spotifyLink, artworkUrl));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return playlists;
     }
 }

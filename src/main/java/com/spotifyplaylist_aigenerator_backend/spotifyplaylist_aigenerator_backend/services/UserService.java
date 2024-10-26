@@ -28,7 +28,7 @@ public class UserService {
         User dbUser = mongoOperations.findOne(query, User.class);
 
         if (dbUser != null) {
-            throw new RuntimeException("Användarnamnet är upptaget");
+            throw new RuntimeException("Användarnamn upptaget");
         }
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);

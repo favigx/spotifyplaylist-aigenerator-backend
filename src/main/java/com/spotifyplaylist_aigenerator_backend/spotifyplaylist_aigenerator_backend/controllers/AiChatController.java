@@ -7,7 +7,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.AiChatResponse;
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.Playlist;
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.User;
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.services.AiChatService;
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.services.SpotifyAuthService;
@@ -30,12 +34,23 @@ public class AiChatController {
     private UserService userService;
 
     @PostMapping("/aichat/{username}")
-    public String postAiChat(@RequestBody String prompt, @PathVariable String username) {
-
+    public String postAiChat(@RequestBody String jsonRequest, @PathVariable String username) {
         User user = userService.getUserByUsername(username);
 
         if (!user.isPremium() && user.getPlaylistsCreated() >= 2) {
             return "Du har nått din gräns på 2 spellistor. Uppgradera till premium för att skapa fler.";
+        }
+
+        String prompt;
+        String playlistName;
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = mapper.readTree(jsonRequest);
+            prompt = node.get("prompt").asText();
+            playlistName = node.get("playlistName").asText();
+        } catch (JsonProcessingException e) {
+            return "Felaktig begäran: " + e.getMessage();
         }
 
         AiChatResponse aiChatResponse = aiChatService.sendAiChatResponse(prompt);
@@ -59,19 +74,25 @@ public class AiChatController {
             }
         }
 
-        String playlistId = spotifyAuthService.createPlaylist(accessToken);
+        String playlistId = spotifyAuthService.createPlaylist(accessToken, playlistName);
         if (playlistId != null) {
+
+            String artworkUrl = "";
             boolean added = spotifyAuthService.addTracksToPlaylist(accessToken, playlistId, songLinks);
+
+            String spotifyLink = "https://open.spotify.com/playlist/" + playlistId;
+            Playlist newPlaylist = new Playlist(playlistId, playlistName, spotifyLink, artworkUrl);
+
+            user.getPlaylists().add(newPlaylist);
+
             if (added) {
                 user.setPlaylistsCreated(user.getPlaylistsCreated() + 1);
                 userService.updateUser(user);
-                return "Spellista skapad: https://open.spotify.com/playlist/" + playlistId;
+                return "Spellista skapad: " + spotifyLink;
+            } else {
+                return "Spellista skapad men inga låtar kunde läggas till.";
             }
         }
-        if (!songLinks.isEmpty()) {
-            return "Spellista skapad men inga låtar kunde läggas till.";
-        }
-
-        return "Inga låtar kunde hittas.";
+        return "Det gick inte att skapa spellistan. Försök igen senare.";
     }
 }
