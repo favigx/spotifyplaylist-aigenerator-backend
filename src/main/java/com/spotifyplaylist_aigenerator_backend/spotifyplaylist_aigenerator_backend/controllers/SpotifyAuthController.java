@@ -39,7 +39,7 @@ public class SpotifyAuthController {
         spotifyAuthService.exchangeCodeForAccessToken(code, username);
 
         RedirectView redirectView = new RedirectView();
-        String redirectUrl = "https://lobster-app-ebdey.ondigitalocean.app?page=generateplaylist";
+        String redirectUrl = "https://lobster-app-ebdey.ondigitalocean.app/?page=generateplaylist";
         redirectView.setUrl(redirectUrl);
         return redirectView;
     }
