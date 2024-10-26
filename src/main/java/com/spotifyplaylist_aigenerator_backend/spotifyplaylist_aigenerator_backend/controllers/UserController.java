@@ -79,4 +79,9 @@ public class UserController {
         }
         return accessToken;
     }
+
+    @GetMapping("/user/{loggedInUser}")
+    public User getUserByUsername(@PathVariable String loggedInUser) {
+        return userService.getUserByUsername(loggedInUser);
+    }
 }

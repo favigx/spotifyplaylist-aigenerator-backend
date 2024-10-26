@@ -1,9 +1,11 @@
 package com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.controllers;
 
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.Playlist;
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.Track;
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.services.SpotifyAuthService;
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.services.UserService;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,5 +54,11 @@ public class SpotifyAuthController {
             System.out.println("Access token not found for user: " + username);
             return Collections.emptyList();
         }
+    }
+
+    @GetMapping("/playlists/{username}")
+    public ResponseEntity<List<Playlist>> getUserPlaylists(@PathVariable String username) {
+        List<Playlist> playlists = spotifyAuthService.getUserPlaylists(username);
+        return ResponseEntity.ok(playlists);
     }
 }
