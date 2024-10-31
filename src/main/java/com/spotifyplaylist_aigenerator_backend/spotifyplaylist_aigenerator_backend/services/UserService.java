@@ -1,5 +1,6 @@
 package com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.services;
 
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -38,10 +39,14 @@ public class UserService {
         }
 
         if (user.getProfileImage() == null || user.getProfileImage().length == 0) {
-            try {
-                byte[] defaultImage = Files
-                        .readAllBytes(Paths.get("src/main/resources/blank-profile-picture-973460_960_720.webp"));
-                user.setProfileImage(defaultImage);
+            try (InputStream is = getClass().getResourceAsStream("/blank-profile-picture-973460_960_720.webp")) {
+                if (is != null) {
+                    byte[] defaultImage = is.readAllBytes();
+                    user.setProfileImage(defaultImage);
+                } else {
+                    System.err.println("Kunde inte hitta defaultprofilbild.");
+                    user.setProfileImage(new byte[0]);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 user.setProfileImage(new byte[0]);
