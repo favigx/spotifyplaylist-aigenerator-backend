@@ -1,5 +1,8 @@
 package com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.services;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -25,7 +28,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User addUser(User user) {
+    public User addUser(User user) throws java.io.IOException {
         Query query = new Query();
         query.addCriteria(Criteria.where("username").is(user.getUsername()));
         User dbUser = mongoOperations.findOne(query, User.class);
@@ -33,8 +36,20 @@ public class UserService {
         if (dbUser != null) {
             throw new RuntimeException("Användarnamn upptaget");
         }
+
+        if (user.getProfileImage() == null || user.getProfileImage().length == 0) {
+            try {
+                byte[] defaultImage = Files
+                        .readAllBytes(Paths.get("src/main/resources/blank-profile-picture-973460_960_720.webp"));
+                user.setProfileImage(defaultImage);
+            } catch (IOException e) {
+                e.printStackTrace();
+                user.setProfileImage(new byte[0]);
+            }
+        }
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
+
         return mongoOperations.insert(user);
     }
 
