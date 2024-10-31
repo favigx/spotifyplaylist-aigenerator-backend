@@ -39,7 +39,7 @@ public class StripeController {
                     .setSuccessUrl(
                             "https://shark-app-j7qxa.ondigitalocean.app/success?session_id={CHECKOUT_SESSION_ID}")
 
-                    .setCancelUrl("https://shark-app-j7qxa.ondigitalocean.app/cancel")
+                    .setCancelUrl("https://lobster-app-ebdey.ondigitalocean.app/?page=stripepaymentlink")
                     .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                     .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
                     .addLineItem(SessionCreateParams.LineItem.builder()
