@@ -5,8 +5,11 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.User;
+
+import io.jsonwebtoken.io.IOException;
 
 @Service
 public class UserService {
@@ -77,5 +80,21 @@ public class UserService {
 
     public User updateUser(User user) {
         return mongoOperations.save(user);
+    }
+
+    public void uploadProfileImage(String username, MultipartFile file) throws java.io.IOException {
+        if (file.isEmpty()) {
+            throw new RuntimeException("Ingen fil vald");
+        }
+
+        try {
+            byte[] imageBytes = file.getBytes();
+
+            User user = getUserByUsername(username);
+            user.setProfileImage(imageBytes);
+            updateUser(user);
+        } catch (IOException e) {
+            throw new RuntimeException("Kunde inte läsa profilbilden: " + e.getMessage());
+        }
     }
 }

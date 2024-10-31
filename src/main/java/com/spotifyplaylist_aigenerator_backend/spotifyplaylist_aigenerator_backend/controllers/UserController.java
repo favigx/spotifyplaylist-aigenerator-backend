@@ -1,5 +1,6 @@
 package com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.controllers;
 
+import java.io.IOException;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -10,8 +11,11 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.User;
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.services.UserService;
@@ -83,5 +87,17 @@ public class UserController {
     @GetMapping("/user/{loggedInUser}")
     public User getUserByUsername(@PathVariable String loggedInUser) {
         return userService.getUserByUsername(loggedInUser);
+    }
+
+    @PutMapping("/profile-image/{loggedInUser}")
+    public ResponseEntity<String> updateProfileImage(
+            @PathVariable String loggedInUser,
+            @RequestParam("file") MultipartFile file) throws IOException {
+        try {
+            userService.uploadProfileImage(loggedInUser, file);
+            return ResponseEntity.ok("Profilbild uppladdad framgångsrikt");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

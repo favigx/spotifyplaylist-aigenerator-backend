@@ -55,7 +55,7 @@ public class AiChatController {
 
         AiChatResponse aiChatResponse = aiChatService.sendAiChatResponse(prompt);
         String accessToken = userService.getSpotifyAccessToken(username);
-        List<String> songLinks = new ArrayList<>();
+        List<String> songUris = new ArrayList<>();
 
         for (AiChatResponse.Choice choice : aiChatResponse.getChoices()) {
             String content = choice.getMessage().getContent();
@@ -66,9 +66,9 @@ public class AiChatController {
                 if (parts.length == 2) {
                     String trackName = parts[0].trim();
                     String artistName = parts[1].trim();
-                    String link = spotifyAuthService.searchTrack(trackName, artistName, accessToken);
-                    if (link != null) {
-                        songLinks.add(link);
+                    String uri = spotifyAuthService.searchTrack(trackName, artistName, accessToken);
+                    if (uri != null) {
+                        songUris.add(uri);
                     }
                 }
             }
@@ -76,19 +76,18 @@ public class AiChatController {
 
         String playlistId = spotifyAuthService.createPlaylist(accessToken, playlistName);
         if (playlistId != null) {
-
             String artworkUrl = "";
-            boolean added = spotifyAuthService.addTracksToPlaylist(accessToken, playlistId, songLinks);
+            boolean added = spotifyAuthService.addTracksToPlaylist(accessToken, playlistId, songUris);
 
-            String spotifyLink = "https://open.spotify.com/playlist/" + playlistId;
-            Playlist newPlaylist = new Playlist(playlistId, playlistName, spotifyLink, artworkUrl);
+            String spotifyUri = "spotify:playlist:" + playlistId;
+            Playlist newPlaylist = new Playlist(playlistId, playlistName, spotifyUri, artworkUrl);
 
             user.getPlaylists().add(newPlaylist);
 
             if (added) {
                 user.setPlaylistsCreated(user.getPlaylistsCreated() + 1);
                 userService.updateUser(user);
-                return "Spellista skapad: " + spotifyLink;
+                return "Spellista skapad: " + spotifyUri;
             } else {
                 return "Spellista skapad men inga låtar kunde läggas till.";
             }
