@@ -13,7 +13,7 @@ public class AiChatRequest {
         this.model = model;
         this.messages = new ArrayList<>();
         this.messages.add(new AiMessage("system",
-                "Generera en lista med önskat antal låtar som liknar låtarna och artisterna som nämns i användarens prompt. Var kreativ. Format svaret ska vara i exakt, ingen siffra innan: Låtnamn - Artist"));
+                "Generera en lista med önskat antal låtar som liknar låtarna och artisterna som nämns i användarens prompt. Var kreativ och ge inte förslag på samma artister och låtar som prompten innehåller. Format svaret ska vara i exakt, ingen siffra innan: Låtnamn - Artist"));
         this.messages.add(new AiMessage("user", prompt));
         this.n = n;
     }

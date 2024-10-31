@@ -41,7 +41,7 @@ public class SpotifyAuthService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    private String extractAccessToken(String responseBody) {
+    public String extractAccessToken(String responseBody) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             JsonNode node = mapper.readTree(responseBody);
@@ -109,7 +109,7 @@ public class SpotifyAuthService {
         return Collections.emptyList();
     }
 
-    private List<Track> extractTopTracks(String responseBody) {
+    public List<Track> extractTopTracks(String responseBody) {
         List<Track> topTracks = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -255,13 +255,14 @@ public class SpotifyAuthService {
                 for (JsonNode item : items) {
                     String playlistId = item.get("id").asText();
                     String playlistName = item.get("name").asText();
-                    String spotifyLink = item.get("external_urls").get("spotify").asText();
+
+                    String spotifyUri = "spotify:playlist:" + playlistId;
 
                     String artworkUrl = "";
                     if (item.has("images") && item.get("images").size() > 0) {
                         artworkUrl = item.get("images").get(0).get("url").asText();
                     }
-                    playlists.add(new Playlist(playlistId, playlistName, spotifyLink, artworkUrl));
+                    playlists.add(new Playlist(playlistId, playlistName, spotifyUri, artworkUrl));
                 }
             }
         } catch (Exception e) {
