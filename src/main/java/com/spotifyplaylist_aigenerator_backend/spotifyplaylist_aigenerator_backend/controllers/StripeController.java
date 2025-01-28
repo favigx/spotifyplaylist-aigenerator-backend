@@ -37,7 +37,7 @@ public class StripeController {
         try {
             SessionCreateParams params = SessionCreateParams.builder()
                     .setSuccessUrl(
-                            "https://shark-app-j7qxa.ondigitalocean.app/success?session_id={CHECKOUT_SESSION_ID}")
+                            "https://sea-turtle-app-le797.ondigitalocean.app/success?session_id={CHECKOUT_SESSION_ID}")
 
                     .setCancelUrl("https://lobster-app-ebdey.ondigitalocean.app/?page=stripepaymentlink")
                     .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
