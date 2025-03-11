@@ -35,7 +35,7 @@ public class UserService {
         User dbUser = mongoOperations.findOne(query, User.class);
 
         Query queryEmail = new Query();
-        query.addCriteria(Criteria.where("email").is(user.getEmail()));
+        queryEmail.addCriteria(Criteria.where("email").is(user.getEmail()));
         User dbUserEmail = mongoOperations.findOne(queryEmail, User.class);
 
         if (dbUser != null) {
