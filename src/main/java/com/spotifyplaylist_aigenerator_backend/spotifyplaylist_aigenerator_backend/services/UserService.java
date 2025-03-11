@@ -34,8 +34,16 @@ public class UserService {
         query.addCriteria(Criteria.where("username").is(user.getUsername()));
         User dbUser = mongoOperations.findOne(query, User.class);
 
+        Query queryEmail = new Query();
+        query.addCriteria(Criteria.where("email").is(user.getEmail()));
+        User dbUserEmail = mongoOperations.findOne(queryEmail, User.class);
+
         if (dbUser != null) {
             throw new RuntimeException("Användarnamn upptaget");
+        }
+
+        if (dbUserEmail != null) {
+            throw new RuntimeException("Epostadressen är redan kopplad till ett konto");
         }
 
         if (user.getProfileImage() == null || user.getProfileImage().length == 0) {
