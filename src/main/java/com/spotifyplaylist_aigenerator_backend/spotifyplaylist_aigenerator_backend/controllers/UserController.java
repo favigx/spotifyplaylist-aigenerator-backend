@@ -46,9 +46,12 @@ public class UserController {
         try {
             User addedUser = userService.addUser(user);
             return ResponseEntity.ok(addedUser);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Användarnamnet är upptaget, pröva något annat");
+                    .body("Ett oväntat fel uppstod. Försök igen senare.");
         }
     }
 
