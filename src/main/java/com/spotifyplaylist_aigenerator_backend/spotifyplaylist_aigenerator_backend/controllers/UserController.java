@@ -55,6 +55,16 @@ public class UserController {
         }
     }
 
+    @GetMapping("/check-email")
+    public ResponseEntity<Void> checkEmail(@RequestParam String email) throws IOException {
+        try {
+            userService.existingEmail(email);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
     @PostMapping("/loginuser")
     public ResponseEntity<?> login(@RequestBody User user) {
         User existingUser = userService.getUserByUsername(user.getUsername());

@@ -66,6 +66,16 @@ public class UserService {
         return mongoOperations.insert(user);
     }
 
+    public void existingEmail(String email) throws java.io.IOException {
+        Query queryEmail = new Query();
+        queryEmail.addCriteria(Criteria.where("email").is(email));
+        User dbUserEmail = mongoOperations.findOne(queryEmail, User.class);
+
+        if (dbUserEmail != null) {
+            throw new RuntimeException("Epostadressen är redan kopplad till ett konto");
+        }
+    }
+
     public User getUserByUsername(String username) {
         Query query = new Query(Criteria.where("username").is(username));
         return mongoOperations.findOne(query, User.class);
