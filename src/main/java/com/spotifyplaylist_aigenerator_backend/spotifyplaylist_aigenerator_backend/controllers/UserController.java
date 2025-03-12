@@ -56,12 +56,12 @@ public class UserController {
     }
 
     @GetMapping("/check-email/{email}")
-    public ResponseEntity<Void> checkEmail(@PathVariable String email) throws IOException {
+    public ResponseEntity<String> checkEmail(@PathVariable String email) throws IOException {
         try {
             userService.existingEmail(email);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok("E-posten är tillgänglig.");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
 
