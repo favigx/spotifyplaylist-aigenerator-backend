@@ -56,6 +56,16 @@ public class UserController {
     }
 
     @GetMapping("/check-email/{email}")
+    public ResponseEntity<String> checkUsername(@PathVariable String username) throws IOException {
+        try {
+            userService.existingEmail(username);
+            return ResponseEntity.ok("Användarnamnet är tillgängligt.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/check-username/{username}")
     public ResponseEntity<String> checkEmail(@PathVariable String email) throws IOException {
         try {
             userService.existingEmail(email);

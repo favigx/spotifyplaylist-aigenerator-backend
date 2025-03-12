@@ -76,6 +76,16 @@ public class UserService {
         }
     }
 
+    public void existingUsername(String username) throws java.io.IOException {
+        Query queryUsername = new Query();
+        queryUsername.addCriteria(Criteria.where("username").is(username));
+        User dbUserEmail = mongoOperations.findOne(queryUsername, User.class);
+
+        if (dbUserEmail != null) {
+            throw new RuntimeException("Användarnamnet är upptaget, försök igen");
+        }
+    }
+
     public User getUserByUsername(String username) {
         Query query = new Query(Criteria.where("username").is(username));
         return mongoOperations.findOne(query, User.class);
