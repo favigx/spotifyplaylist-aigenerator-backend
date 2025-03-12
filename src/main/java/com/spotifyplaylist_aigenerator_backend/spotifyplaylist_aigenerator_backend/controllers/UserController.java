@@ -55,8 +55,8 @@ public class UserController {
         }
     }
 
-    @GetMapping("/check-email")
-    public ResponseEntity<Void> checkEmail(@RequestParam String email) throws IOException {
+    @GetMapping("/check-email/{email}")
+    public ResponseEntity<Void> checkEmail(@PathVariable String email) throws IOException {
         try {
             userService.existingEmail(email);
             return ResponseEntity.ok().build();
