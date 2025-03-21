@@ -66,6 +66,28 @@ public class UserService {
         return mongoOperations.insert(user);
     }
 
+    public User addUserForMobileApplication(User user) throws java.io.IOException {
+
+        if (user.getProfileImage() == null || user.getProfileImage().length == 0) {
+            try (InputStream is = getClass().getResourceAsStream("/blank-profile-picture-973460_960_720.webp")) {
+                if (is != null) {
+                    byte[] defaultImage = is.readAllBytes();
+                    user.setProfileImage(defaultImage);
+                } else {
+                    System.err.println("Kunde inte hitta defaultprofilbild.");
+                    user.setProfileImage(new byte[0]);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                user.setProfileImage(new byte[0]);
+            }
+        }
+        String encryptedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encryptedPassword);
+
+        return mongoOperations.insert(user);
+    }
+
     public void existingEmail(String email) throws java.io.IOException {
         Query queryEmail = new Query();
         queryEmail.addCriteria(Criteria.where("email").is(email));

@@ -55,6 +55,20 @@ public class UserController {
         }
     }
 
+    @PostMapping("/user/app")
+    public ResponseEntity<?> addUserForMobileApplication(@RequestBody User user) {
+        try {
+            User addedUser = userService.addUser(user);
+            return ResponseEntity.ok(addedUser);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ett oväntat fel uppstod. Försök igen senare.");
+        }
+    }
+
     @GetMapping("/check-email/{email}")
     public ResponseEntity<String> checkEmail(@PathVariable String email) throws IOException {
         try {
