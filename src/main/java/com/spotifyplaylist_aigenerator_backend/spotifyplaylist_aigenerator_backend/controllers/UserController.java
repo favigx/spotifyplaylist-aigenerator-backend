@@ -58,7 +58,7 @@ public class UserController {
     @PostMapping("/user/app")
     public ResponseEntity<?> addUserForMobileApplication(@RequestBody User user) {
         try {
-            User addedUser = userService.addUser(user);
+            User addedUser = userService.addUserForMobileApplication(user);
             return ResponseEntity.ok(addedUser);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
