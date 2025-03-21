@@ -107,12 +107,12 @@ public class UserController {
                         .signWith(SignatureAlgorithm.HS512, jwtSecret)
                         .compact();
 
-                return ResponseEntity.ok("{\"token\":\"" + token + "\"}");
+                return ResponseEntity.ok("token: " + token);
             }
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("{\"error\": \"Fel användarnamn eller lösenord\"}");
+                .body("Fel användarnamn eller lösenord");
     }
 
     @GetMapping("/user/{username}/accesstoken")
