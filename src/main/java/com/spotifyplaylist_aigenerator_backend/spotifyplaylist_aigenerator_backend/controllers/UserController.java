@@ -93,10 +93,6 @@ public class UserController {
     public ResponseEntity<?> login(@RequestBody User user) {
         User existingUser = userService.getUserByUsername(user.getUsername());
 
-        if (existingUser == null) {
-            existingUser = userService.getUserByEmail(user.getEmail());
-        }
-
         if (existingUser != null) {
             String encodedPassword = existingUser.getPassword();
             String incomingPassword = user.getPassword();
