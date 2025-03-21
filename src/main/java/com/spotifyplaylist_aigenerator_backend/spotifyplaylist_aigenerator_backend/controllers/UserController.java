@@ -93,6 +93,10 @@ public class UserController {
     public ResponseEntity<?> login(@RequestBody User user) {
         User existingUser = userService.getUserByUsername(user.getUsername());
 
+        if (existingUser == null) {
+            existingUser = userService.getUserByEmail(user.getEmail());
+        }
+
         if (existingUser != null) {
             String encodedPassword = existingUser.getPassword();
             String incomingPassword = user.getPassword();
@@ -106,10 +110,13 @@ public class UserController {
                         .setExpiration(new Date(System.currentTimeMillis() + jwtExpriationMs))
                         .signWith(SignatureAlgorithm.HS512, jwtSecret)
                         .compact();
-                return ResponseEntity.ok(token);
+
+                return ResponseEntity.ok("{\"token\":\"" + token + "\"}");
             }
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Fel användarnamn eller lösenord");
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("{\"error\": \"Fel användarnamn eller lösenord\"}");
     }
 
     @GetMapping("/user/{username}/accesstoken")
