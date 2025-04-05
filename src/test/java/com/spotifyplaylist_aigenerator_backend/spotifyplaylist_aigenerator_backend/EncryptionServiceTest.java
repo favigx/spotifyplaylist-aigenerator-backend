@@ -3,7 +3,7 @@ package com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_back
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.services.EncryptionService;
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.security.EncryptionService;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;

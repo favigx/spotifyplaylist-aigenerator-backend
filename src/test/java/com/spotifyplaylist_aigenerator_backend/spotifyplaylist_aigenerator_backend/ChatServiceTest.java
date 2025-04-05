@@ -1,7 +1,8 @@
 package com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend;
 
-import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.Chat;
-import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.services.ChatService;
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.websocket.Chat;
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.websocket.ChatService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

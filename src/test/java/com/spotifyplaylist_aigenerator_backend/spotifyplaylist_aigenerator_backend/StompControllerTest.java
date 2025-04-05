@@ -3,10 +3,10 @@ package com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_back
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.controllers.StompController;
-import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.Chat;
-import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.ChatMessage;
-import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.services.ChatService;
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.websocket.Chat;
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.websocket.ChatMessage;
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.websocket.ChatService;
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.websocket.StompController;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,8 +1,9 @@
 package com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend;
 
-import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.models.User;
-import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.services.EncryptionService;
-import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.services.UserService;
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.security.EncryptionService;
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.user.User;
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.user.UserService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -44,7 +45,8 @@ public class UserServiceTest {
         String password = "password";
         String spotifyAccessToken = "someAccessToken";
 
-        User expectedUser = new User(userId, email, username, password, null, spotifyAccessToken, false, 0, null);
+        User expectedUser = new User(userId, email, username, password, null, spotifyAccessToken, false, 0, null,
+                spotifyAccessToken);
 
         when(mongoOperations.findOne(new Query(Criteria.where("username").is(username)), User.class))
                 .thenReturn(expectedUser);
