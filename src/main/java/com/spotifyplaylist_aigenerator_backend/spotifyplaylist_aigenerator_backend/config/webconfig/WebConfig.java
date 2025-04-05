@@ -11,7 +11,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("https://lobster-app-ebdey.ondigitalocean.app", "http://localhost:5173")
+                .allowedOrigins("https://lobster-app-ebdey.ondigitalocean.app", "http://localhost:5173",
+                        "https://sea-turtle-app-le797.ondigitalocean.app")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
