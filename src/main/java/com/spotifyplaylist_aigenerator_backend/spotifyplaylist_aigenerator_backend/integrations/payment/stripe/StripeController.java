@@ -1,7 +1,6 @@
 package com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.integrations.payment.stripe;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
