@@ -35,6 +35,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/spotify/{loggedInUser}/login").permitAll()
                         .requestMatchers("/api/user/users").permitAll()
                         .requestMatchers("/api/chat/**").authenticated()
+                        .requestMatchers("/websocket/**").permitAll()
                         .requestMatchers("/api/ai/**").authenticated());
 
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
