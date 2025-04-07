@@ -2,6 +2,7 @@ package com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_back
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -17,8 +18,11 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+        http
+                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/").permitAll()
                         .requestMatchers("/api/user/**").permitAll()
                         .requestMatchers("/api/user/login/**").permitAll()
                         .requestMatchers("/api/user/register/**").permitAll()
@@ -31,9 +35,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/spotify/{loggedInUser}/login").permitAll()
                         .requestMatchers("/api/user/users").permitAll()
                         .requestMatchers("/api/chat/**").authenticated()
-                        .requestMatchers("/api/ai/**").authenticated())
+                        .requestMatchers("/api/ai/**").authenticated());
 
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
