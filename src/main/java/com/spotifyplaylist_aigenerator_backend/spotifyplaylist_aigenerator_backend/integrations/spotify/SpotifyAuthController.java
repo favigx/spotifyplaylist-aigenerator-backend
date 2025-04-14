@@ -36,7 +36,18 @@ public class SpotifyAuthController {
         spotifyAuthService.exchangeCodeForAccessToken(code, username);
 
         RedirectView redirectView = new RedirectView();
-        String redirectUrl = "https://lobster-app-ebdey.ondigitalocean.app/?page=generateplaylist";
+        String redirectUrl = "http://localhost:5173/?page=generateplaylist";
+        redirectView.setUrl(redirectUrl);
+        return redirectView;
+    }
+
+    @GetMapping("app/callback")
+    public RedirectView handleCallbackMobileApp(@RequestParam("code") String code,
+            @RequestParam("state") String username) {
+        spotifyAuthService.exchangeCodeForAccessToken(code, username);
+
+        RedirectView redirectView = new RedirectView();
+        String redirectUrl = "exp://192.168.50.248:8081/generateplaylist";
         redirectView.setUrl(redirectUrl);
         return redirectView;
     }
