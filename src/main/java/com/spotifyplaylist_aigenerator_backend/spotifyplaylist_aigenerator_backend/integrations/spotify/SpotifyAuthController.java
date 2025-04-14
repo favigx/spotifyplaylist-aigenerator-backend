@@ -41,10 +41,15 @@ public class SpotifyAuthController {
         return redirectView;
     }
 
-    @GetMapping("app/callback")
-    public RedirectView handleCallbackMobileApp(@RequestParam("code") String code,
+    @GetMapping("/app/{loggedInUser}/login")
+    public String loginApp(@PathVariable String loggedInUser) {
+        return spotifyAuthService.getSpotifyAuthorizationUrlForApp(loggedInUser);
+    }
+
+    @GetMapping("/app/callback")
+    public RedirectView handleCallbackApp(@RequestParam("code") String code,
             @RequestParam("state") String username) {
-        spotifyAuthService.exchangeCodeForAccessToken(code, username);
+        spotifyAuthService.exchangeCodeForAccessTokenForApp(code, username);
 
         RedirectView redirectView = new RedirectView();
         String redirectUrl = "exp://192.168.50.248:8081/generateplaylist";

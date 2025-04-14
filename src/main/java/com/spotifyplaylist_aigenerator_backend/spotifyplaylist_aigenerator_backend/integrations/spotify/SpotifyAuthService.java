@@ -32,6 +32,9 @@ public class SpotifyAuthService {
     @Value("${spotifyredirecturi}")
     private String redirectUri;
 
+    @Value("${spotifyredirecturiapp}")
+    private String redirectUriApp;
+
     private final UserService userService;
 
     public SpotifyAuthService(UserService userService) {
@@ -71,6 +74,42 @@ public class SpotifyAuthService {
         body.add("grant_type", "authorization_code");
         body.add("code", code);
         body.add("redirect_uri", redirectUri);
+        body.add("client_id", clientId);
+        body.add("client_secret", clientSecret);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            String accessToken = extractAccessToken(response.getBody());
+
+            userService.saveSpotifyAccessToken(username, accessToken);
+            return accessToken;
+        }
+        return null;
+    }
+
+    public String getSpotifyAuthorizationUrlForApp(String username) {
+        String scopes = "playlist-modify-public playlist-modify-private user-library-read user-read-private user-read-playback-state user-top-read";
+
+        return "https://accounts.spotify.com/authorize?response_type=code"
+                + "&client_id=" + clientId
+                + "&scope=" + scopes
+                + "&redirect_uri=" + redirectUriApp
+                + "&state=" + username;
+    }
+
+    public String exchangeCodeForAccessTokenForApp(String code, String username) {
+        String url = "https://accounts.spotify.com/api/token";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("grant_type", "authorization_code");
+        body.add("code", code);
+        body.add("redirect_uri", redirectUriApp);
         body.add("client_id", clientId);
         body.add("client_secret", clientSecret);
 
