@@ -33,6 +33,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/spotify/{loggedInUser}/top-ten-tracks").authenticated()
                         .requestMatchers("/api/spotify/callback").permitAll()
                         .requestMatchers("/api/spotify/{loggedInUser}/login").permitAll()
+                        .requestMatchers("/api/spotify/app/callback").permitAll()
+                        .requestMatchers("/api/spotify/app/{loggedInUser}/login").permitAll()
                         .requestMatchers("/api/user/users").permitAll()
                         .requestMatchers("/api/chat/**").authenticated()
                         .requestMatchers("/websocket/**").permitAll()
