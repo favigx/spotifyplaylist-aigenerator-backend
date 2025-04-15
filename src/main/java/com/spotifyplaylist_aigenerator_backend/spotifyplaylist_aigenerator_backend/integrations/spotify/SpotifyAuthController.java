@@ -2,6 +2,7 @@ package com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_back
 
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.user.UserService;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,7 +11,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Collections;
+import java.util.HashMap;
+
 import org.springframework.web.servlet.view.RedirectView;
 
 @RequestMapping("/api/spotify")
@@ -47,14 +51,19 @@ public class SpotifyAuthController {
     }
 
     @GetMapping("/app/callback")
-    public RedirectView handleCallbackApp(@RequestParam("code") String code,
+    public ResponseEntity<Map<String, String>> handleCallbackApp(@RequestParam("code") String code,
             @RequestParam("state") String username) {
-        spotifyAuthService.exchangeCodeForAccessTokenForApp(code, username);
+        try {
+            String accessToken = spotifyAuthService.exchangeCodeForAccessTokenForApp(code, username);
 
-        RedirectView redirectView = new RedirectView();
-        String redirectUrl = "exp://192.168.50.248:8081/callback?status=success";
-        redirectView.setUrl(redirectUrl);
-        return redirectView;
+            Map<String, String> response = new HashMap<>();
+            response.put("access_token", accessToken);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Fel vid inloggning"));
+        }
     }
 
     @GetMapping("/{loggedInUser}/top-ten-tracks")
