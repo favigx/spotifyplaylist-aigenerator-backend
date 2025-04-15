@@ -52,7 +52,7 @@ public class SpotifyAuthController {
         spotifyAuthService.exchangeCodeForAccessTokenForApp(code, username);
 
         RedirectView redirectView = new RedirectView();
-        String redirectUrl = "exp://192.168.50.248:8081/GeneratePlaylist?status=success";
+        String redirectUrl = "exp://192.168.50.248:8081/callback?status=success";
         redirectView.setUrl(redirectUrl);
         return redirectView;
     }
