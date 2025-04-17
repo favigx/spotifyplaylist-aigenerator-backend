@@ -13,6 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins("https://lobster-app-ebdey.ondigitalocean.app", "http://localhost:5173",
                         "http://192.168.50.248:8081", "http://localhost:8081", "exp://192.168.50.248:8081",
+                        "exp://192.168.1.13:8081",
                         "https://sea-turtle-app-le797.ondigitalocean.app")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
