@@ -16,7 +16,7 @@ public class SpotifyAuthServiceTest {
 
     @BeforeEach
     public void setUp() {
-        spotifyAuthService = new SpotifyAuthService(null);
+        spotifyAuthService = new SpotifyAuthService(null, null);
     }
 
     @Test
