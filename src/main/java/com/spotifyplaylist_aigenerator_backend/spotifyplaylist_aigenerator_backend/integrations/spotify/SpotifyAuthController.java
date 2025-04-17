@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -47,18 +48,23 @@ public class SpotifyAuthController {
     }
 
     @GetMapping("/app/callback")
-    public ResponseEntity<Map<String, String>> handleCallbackApp(@RequestParam("code") String code,
+    public ResponseEntity<Void> handleCallbackApp(
+            @RequestParam("code") String code,
             @RequestParam("state") String username) {
         try {
             String accessToken = spotifyAuthService.exchangeCodeForAccessTokenForApp(code, username);
 
-            Map<String, String> response = new HashMap<>();
-            response.put("access_token", accessToken);
+            URI redirectUri = URI.create("exp://192.168.1.13:8081/callback?access_token=" + accessToken);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(redirectUri)
+                    .build();
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.singletonMap("error", "Fel vid inloggning"));
+            URI errorUri = URI.create("yourapp://callback?error=spotify_login_failed");
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(errorUri)
+                    .build();
         }
     }
 
