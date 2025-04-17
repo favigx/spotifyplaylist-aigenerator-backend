@@ -1,7 +1,5 @@
 package com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.integrations.spotify;
 
-import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.user.UserService;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,11 +20,9 @@ import org.springframework.web.servlet.view.RedirectView;
 public class SpotifyAuthController {
 
     private final SpotifyAuthService spotifyAuthService;
-    private final UserService userService;
 
-    public SpotifyAuthController(SpotifyAuthService spotifyAuthService, UserService userService) {
+    public SpotifyAuthController(SpotifyAuthService spotifyAuthService) {
         this.spotifyAuthService = spotifyAuthService;
-        this.userService = userService;
     }
 
     @GetMapping("/{loggedInUser}/login")
@@ -68,7 +64,7 @@ public class SpotifyAuthController {
 
     @GetMapping("/{loggedInUser}/top-ten-tracks")
     public List<Track> getTopTenTracks(@PathVariable String loggedInUser) {
-        String accessToken = userService.getSpotifyAccessToken(loggedInUser);
+        String accessToken = spotifyAuthService.getValidSpotifyAccessToken(loggedInUser);
 
         if (accessToken != null) {
             return spotifyAuthService.getTopTenPlayedTracks(accessToken);

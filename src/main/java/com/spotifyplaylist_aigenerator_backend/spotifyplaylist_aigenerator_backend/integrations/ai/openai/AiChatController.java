@@ -52,7 +52,7 @@ public class AiChatController {
         }
 
         AiChatResponse aiChatResponse = aiChatService.sendAiChatResponse(prompt);
-        String accessToken = userService.getSpotifyAccessToken(loggedInUser);
+        String accessToken = spotifyAuthService.getValidSpotifyAccessToken(loggedInUser);
         List<String> songUris = new ArrayList<>();
 
         System.out.println("AI Response:");

@@ -17,13 +17,15 @@ public class User {
     private String password;
     private byte[] profileImage;
     private String spotifyAccessToken;
+    private String spotifyRefreshToken;
     private boolean isPremium;
     private int playlistsCreated;
     private List<Playlist> playlists;
     private String stripeCustomerId;
 
     public User(String userId, String email, String username, String password, byte[] profileImage,
-            String spotifyAccessToken, boolean isPremium, int playlistsCreated, List<Playlist> playlists,
+            String spotifyAccessToken, String spotifyRefreshToken, boolean isPremium, int playlistsCreated,
+            List<Playlist> playlists,
             String stripeCustomerId) {
         this.userId = userId;
         this.email = email;
@@ -31,6 +33,7 @@ public class User {
         this.password = password;
         this.profileImage = profileImage;
         this.spotifyAccessToken = spotifyAccessToken;
+        this.spotifyRefreshToken = spotifyRefreshToken;
         this.isPremium = isPremium;
         this.playlistsCreated = playlistsCreated;
         this.playlists = playlists != null ? playlists : new ArrayList<>();
@@ -83,6 +86,14 @@ public class User {
 
     public void setSpotifyAccessToken(String spotifyAccessToken) {
         this.spotifyAccessToken = spotifyAccessToken;
+    }
+
+    public String getSpotifyRefreshToken() {
+        return spotifyRefreshToken;
+    }
+
+    public void setSpotifyRefreshToken(String spotifyRefreshToken) {
+        this.spotifyRefreshToken = spotifyRefreshToken;
     }
 
     public boolean isPremium() {

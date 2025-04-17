@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.integrations.spotify.SpotifyAuthService;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -28,10 +30,13 @@ public class UserController {
 
     private UserService userService;
     private PasswordEncoder passwordEncoder;
+    private final SpotifyAuthService spotifyAuthService;
 
-    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
+    public UserController(UserService userService, PasswordEncoder passwordEncoder,
+            SpotifyAuthService spotifyAuthService) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.spotifyAuthService = spotifyAuthService;
     }
 
     @Value("${jwtSecret}")
@@ -117,7 +122,7 @@ public class UserController {
 
     @GetMapping("/{loggedInUser}/spotify-token")
     public String getAccessToken(@PathVariable String loggedInUser) {
-        String accessToken = userService.getSpotifyAccessToken(loggedInUser);
+        String accessToken = spotifyAuthService.getValidSpotifyAccessToken(loggedInUser);
         if (accessToken == null) {
             throw new RuntimeException("Kunde inte hämta access token för användare: " + loggedInUser);
         }

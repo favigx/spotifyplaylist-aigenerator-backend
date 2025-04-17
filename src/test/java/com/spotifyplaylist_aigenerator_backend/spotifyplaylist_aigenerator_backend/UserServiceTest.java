@@ -44,8 +44,10 @@ public class UserServiceTest {
         String email = "test@example.com";
         String password = "password";
         String spotifyAccessToken = "someAccessToken";
+        String spotifyRefreshToken = "someRefreshToken";
 
-        User expectedUser = new User(userId, email, username, password, null, spotifyAccessToken, false, 0, null,
+        User expectedUser = new User(userId, email, username, password, null, spotifyAccessToken, spotifyRefreshToken,
+                false, 0, null,
                 spotifyAccessToken);
 
         when(mongoOperations.findOne(new Query(Criteria.where("username").is(username)), User.class))

@@ -2,11 +2,13 @@ package com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_back
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.security.EncryptionService;
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.user.User;
 import com.spotifyplaylist_aigenerator_backend.spotifyplaylist_aigenerator_backend.user.UserService;
 
@@ -36,9 +38,11 @@ public class SpotifyAuthService {
     private String redirectUriApp;
 
     private final UserService userService;
+    private final EncryptionService encryptionService;
 
-    public SpotifyAuthService(UserService userService) {
+    public SpotifyAuthService(UserService userService, EncryptionService encryptionService) {
         this.userService = userService;
+        this.encryptionService = encryptionService;
     }
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -50,6 +54,48 @@ public class SpotifyAuthService {
             return node.get("access_token").asText();
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String extractRefreshToken(String responseBody) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode node = mapper.readTree(responseBody);
+            return node.get("refresh_token").asText();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String getValidSpotifyAccessToken(String username) {
+        try {
+            User user = userService.getUserByUsername(username);
+            if (user == null) {
+                throw new RuntimeException("Användaren hittades inte");
+            }
+
+            String encryptedAccessToken = user.getSpotifyAccessToken();
+            String encryptedRefreshToken = user.getSpotifyRefreshToken();
+
+            String accessToken = encryptionService.decrypt(encryptedAccessToken);
+
+            if (isAccessTokenExpired(accessToken)) {
+                String refreshToken = encryptionService.decrypt(encryptedRefreshToken);
+                accessToken = refreshAccessToken(refreshToken);
+
+                if (accessToken != null) {
+                    userService.saveSpotifyAccessToken(username, accessToken, refreshToken);
+                } else {
+                    System.err.println("Kunde inte förnya access token för användare: " + username);
+                    return null;
+                }
+            }
+
+            return accessToken;
+        } catch (Exception e) {
+            System.err.println("Kunde inte hämta spotify-access token: " + e.getMessage());
             return null;
         }
     }
@@ -83,8 +129,9 @@ public class SpotifyAuthService {
 
         if (response.getStatusCode() == HttpStatus.OK) {
             String accessToken = extractAccessToken(response.getBody());
+            String refreshToken = extractRefreshToken(response.getBody());
 
-            userService.saveSpotifyAccessToken(username, accessToken);
+            userService.saveSpotifyAccessToken(username, accessToken, refreshToken);
             return accessToken;
         }
         return null;
@@ -119,11 +166,54 @@ public class SpotifyAuthService {
 
         if (response.getStatusCode() == HttpStatus.OK) {
             String accessToken = extractAccessToken(response.getBody());
+            String refreshToken = extractRefreshToken(response.getBody());
 
-            userService.saveSpotifyAccessToken(username, accessToken);
+            userService.saveSpotifyAccessToken(username, accessToken, refreshToken);
             return accessToken;
         }
         return null;
+    }
+
+    public String refreshAccessToken(String refreshToken) {
+        String url = "https://accounts.spotify.com/api/token";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("grant_type", "refresh_token");
+        body.add("refresh_token", refreshToken);
+        body.add("client_id", clientId);
+        body.add("client_secret", clientSecret);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return extractAccessToken(response.getBody());
+        }
+        return null;
+    }
+
+    public boolean isAccessTokenExpired(String accessToken) {
+        String url = "https://api.spotify.com/v1/me";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            return false; // fortfarande giltig
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                return true;
+            }
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public List<Track> getTopTenPlayedTracks(String accessToken) {
@@ -258,7 +348,7 @@ public class SpotifyAuthService {
     }
 
     public List<Playlist> getUserPlaylists(String username) {
-        String accessToken = userService.getSpotifyAccessToken(username);
+        String accessToken = getValidSpotifyAccessToken(username);
         String url = "https://api.spotify.com/v1/me/playlists";
 
         HttpHeaders headers = new HttpHeaders();

@@ -26,6 +26,7 @@ public class UserService {
         this.mongoOperations = mongoOperations;
         this.encryptionService = encryptionService;
         this.passwordEncoder = passwordEncoder;
+
     }
 
     public List<User> getAllUsers() {
@@ -116,38 +117,25 @@ public class UserService {
         return mongoOperations.findOne(query, User.class);
     }
 
-    public void saveSpotifyAccessToken(String username, String accessToken) {
+    public void saveSpotifyAccessToken(String username, String accessToken, String refreshToken) {
         try {
-            String encryptedToken = encryptionService.encrypt(accessToken);
-
             User user = getUserByUsername(username);
 
             if (user != null) {
-                user.setSpotifyAccessToken(encryptedToken);
+                if (accessToken != null) {
+                    user.setSpotifyAccessToken(encryptionService.encrypt(accessToken));
+                }
+
+                if (refreshToken != null) {
+                    user.setSpotifyRefreshToken(encryptionService.encrypt(refreshToken));
+                }
+
                 mongoOperations.save(user);
             } else {
                 throw new RuntimeException("Användaren hittades inte");
             }
-
         } catch (Exception e) {
-            System.err.println("Kunde inte spara spotify-accesstoken: " + e.getMessage());
-        }
-    }
-
-    public String getSpotifyAccessToken(String username) {
-        try {
-            User user = getUserByUsername(username);
-
-            if (user != null) {
-                String encryptedToken = user.getSpotifyAccessToken();
-                return encryptionService.decrypt(encryptedToken);
-            } else {
-                throw new RuntimeException("Användaren hittades inte");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Kunde inte hämta spotify-accesstoken: " + e.getMessage());
-            return null;
+            System.err.println("Kunde inte spara spotify-accesstoken och refresh-token: " + e.getMessage());
         }
     }
 
