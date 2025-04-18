@@ -52,14 +52,14 @@ public class SpotifyAuthController {
         try {
             String accessToken = spotifyAuthService.exchangeCodeForAccessTokenForApp(code, username);
 
-            URI redirectUri = URI.create("exp://192.168.1.13:8081/callback?access_token=" + accessToken);
+            URI redirectUri = URI.create("exp://192.168.1.13:8081/--/spotify-callback?access_token=" + accessToken);
 
             return ResponseEntity.status(HttpStatus.FOUND)
                     .location(redirectUri)
                     .build();
 
         } catch (Exception e) {
-            URI errorUri = URI.create("yourapp://callback?error=spotify_login_failed");
+            URI errorUri = URI.create("exp://callback?error=spotify_login_failed");
             return ResponseEntity.status(HttpStatus.FOUND)
                     .location(errorUri)
                     .build();
