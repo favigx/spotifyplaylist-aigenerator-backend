@@ -108,7 +108,8 @@ public class SpotifyAuthService {
                 + "&scope=" + scopes
                 + "&redirect_uri=" + redirectUri
                 + "&state=" + username
-                + "&prompt=login";
+                + "&prompt=login"
+                + "&show_dialog=true";
     }
 
     public String exchangeCodeForAccessToken(String code, String username) {
@@ -146,7 +147,8 @@ public class SpotifyAuthService {
                 + "&scope=" + scopes
                 + "&redirect_uri=" + redirectUriApp
                 + "&state=" + username
-                + "&prompt=login";
+                + "&prompt=login"
+                + "&show_dialog=true";
     }
 
     public String exchangeCodeForAccessTokenForApp(String code, String username) {
