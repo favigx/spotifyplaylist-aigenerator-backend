@@ -71,11 +71,6 @@ public class AiChatController {
                 } else {
                     System.out.println("Ingen låt hittades.");
                 }
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
             }
         }
 
